@@ -1,5 +1,6 @@
 package com.example.social_network.entities;
 
+import com.example.social_network.comon.enums.FriendshipStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,11 +10,12 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Friendship extends BaseEntity {
 
     @Id
+    @Column(name = "friendship_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "friendship_id",length = 50, nullable = false)
     private String friendshipId;
 
     @ManyToOne
@@ -24,8 +26,10 @@ public class Friendship extends BaseEntity {
     @JoinColumn(name = "user_id_2", referencedColumnName = "user_id")
     private User user2;
 
-    @Column(name = "status", length = 20, nullable = false)
-    private String status = "PENDING";  // Default value is 'PENDING'
+    @Enumerated(EnumType.STRING)
+    private FriendshipStatus status;
+
+
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted;
 }
