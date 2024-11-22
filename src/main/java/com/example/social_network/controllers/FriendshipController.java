@@ -38,11 +38,21 @@ public class FriendshipController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/reject")
-    public ResponseEntity<?> rejectFriendship(@RequestParam String userId1, @RequestParam String userId2) {
-        Friendship friendship = friendshipService.rejectFriendship(userId1, userId2);
+    @PutMapping("/block")
+    public ResponseEntity<?> blockFriendship(@RequestParam String userId1, @RequestParam String userId2) {
+        Friendship friendship = friendshipService.blockFriendship(userId1, userId2);
         Response<Object> response = Response.builder()
-                .message("Yêu cầu kết bạn đã bị từ chối")
+                .message("Chặn thành công")
+                .data(friendship)
+                .success(true)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @PutMapping("/unBlock")
+    public ResponseEntity<?> unBlockFriendship(@RequestParam String userId1, @RequestParam String userId2) {
+        Friendship friendship = friendshipService.unBlockFriendship(userId1, userId2);
+        Response<Object> response = Response.builder()
+                .message("Bỏ chặn thành công")
                 .data(friendship)
                 .success(true)
                 .build();

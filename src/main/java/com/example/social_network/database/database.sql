@@ -91,7 +91,7 @@ CREATE TABLE `friendship` (
     `friendship_id` varchar(50) PRIMARY KEY ,
     `user_id_1` varchar(50),
     `user_id_2` varchar(50),
-    `status` ENUM('PENDING', 'ACCEPTED', 'REJECTED') DEFAULT 'PENDING',
+    `status` ENUM('PENDING', 'ACCEPTED', 'BlOCK') DEFAULT 'PENDING',
     `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `create_by` varchar(255),
     `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

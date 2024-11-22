@@ -55,14 +55,25 @@ public class FriendshipService implements IFriendshipService {
     }
 
 
-    public Friendship rejectFriendship(String userId1, String userId2) {
+    public Friendship blockFriendship(String userId1, String userId2) {
         Optional<Friendship> friendshipOpt = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId1, userId2);
 
         if (friendshipOpt.isEmpty()) {
             throw new RuntimeException("Friendship request not found or already deleted");
         }
         Friendship friendship = friendshipOpt.get();
-        friendship.setStatus(FriendshipStatus.REJECTED);
+        friendship.setStatus(FriendshipStatus.BLOCK);
+        return friendshipRepository.save(friendship);
+    }
+    public Friendship unBlockFriendship(String userId1, String userId2) {
+        Optional<Friendship> friendshipOpt = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId1, userId2);
+
+        if (friendshipOpt.isEmpty()) {
+            throw new RuntimeException("Friendship request not found or already deleted");
+        }
+        Friendship friendship = friendshipOpt.get();
+        friendship.setStatus(null);
+        friendship.setDeleted(true);
         return friendshipRepository.save(friendship);
     }
 

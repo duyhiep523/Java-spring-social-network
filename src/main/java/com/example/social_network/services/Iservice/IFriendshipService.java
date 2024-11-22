@@ -10,7 +10,9 @@ public interface IFriendshipService {
 
     Friendship acceptFriendship(String userId1, String userId2);
 
-    Friendship rejectFriendship(String userId1, String userId2);
+    Friendship blockFriendship(String userId1, String userId2);
+
+    Friendship unBlockFriendship(String userId1, String userId2);
 
 
     void deleteFriendship(String userId1, String userId2);

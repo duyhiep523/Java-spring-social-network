@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalException {
 
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Error> handleBadRequestException(IllegalArgumentException ex) {
         Error error = new Error("Invalid request: " + ex.getMessage(), "BAD_REQUEST");
