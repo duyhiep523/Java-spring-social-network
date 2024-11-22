@@ -11,6 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Friendship extends BaseEntity {
 
     @Id
