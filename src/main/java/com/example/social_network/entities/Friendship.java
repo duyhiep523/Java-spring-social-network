@@ -29,6 +29,7 @@ public class Friendship extends BaseEntity {
     private User user2;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, columnDefinition = "ENUM('PENDING', 'ACCEPTED', 'BLOCK') DEFAULT 'PENDING'")
     private FriendshipStatus status;
 
 

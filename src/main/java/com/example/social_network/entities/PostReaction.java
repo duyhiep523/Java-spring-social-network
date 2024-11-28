@@ -1,5 +1,6 @@
 package com.example.social_network.entities;
 
+import com.example.social_network.comon.enums.PostReactionEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,11 +10,12 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PostReaction extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "reaction_id",length = 50, nullable = false)
+    @Column(name = "reaction_id", length = 50, nullable = false)
     private String reactionId;
 
     @ManyToOne
@@ -24,8 +26,11 @@ public class PostReaction extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User userAccount;
 
-    @Column(name = "reaction_type", length = 20, nullable = false)
-    private String reactionType; // LIKE, LOVE, HAHA, WOW, SAD, ANGRY
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reaction_type", nullable = false, columnDefinition = "ENUM('LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY') NOT NULL")
+    private PostReactionEnum reactionType;
+
+
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 }
