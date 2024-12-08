@@ -9,9 +9,21 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
+
 
 @RestControllerAdvice
 public class GlobalException {
+
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<?> handleDateTimeParseException(DateTimeParseException ex) {
+        Error errorResponse = new Error(
+                "Ngày sinh không đúng định dạng. Định dạng đúng là yyyy-MM-dd",
+                "BAD_REQUEST"
+        );
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Error> handleBadRequestException(IllegalArgumentException ex) {
@@ -35,7 +47,7 @@ public class GlobalException {
 
     @ExceptionHandler(InvalidFormatException.class)
     public ResponseEntity<Error> handleInvalidFormatException(InvalidFormatException ex) {
-        String errorMessage = "Invalid value for enum: " + ex.getValue();
+        String errorMessage = "Giá trị của enum không hợp lệ: " + ex.getValue();
         Error error = new Error(errorMessage, "400");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -50,11 +62,19 @@ public class GlobalException {
 
     // Xử lý lỗi khi không thể đọc dữ liệu JSON (ví dụ: thông tin không hợp lệ)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Error> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException) {
+            if (((InvalidFormatException) cause).getTargetType() == java.time.LocalDate.class) {
+                return handleDateTimeParseException((DateTimeParseException) cause.getCause());
+            }
+            return handleInvalidFormatException((InvalidFormatException) cause);
+        }
         String errorMessage = "Yêu cầu JSON không đúng định dạng: " + ex.getMessage();
         Error error = new Error(errorMessage, "400");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
 
 
 

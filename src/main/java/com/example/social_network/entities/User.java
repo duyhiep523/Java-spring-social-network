@@ -1,8 +1,10 @@
 package com.example.social_network.entities;
 
+import com.example.social_network.comon.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -45,7 +47,10 @@ public class User extends BaseEntity {
     private String hometown;
 
     @Column(name = "date_of_birth")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false, columnDefinition = "ENUM('MALE', 'FEMALE', 'OTHER') DEFAULT 'OTHER'")
+    private Gender gender;
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;

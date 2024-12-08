@@ -11,6 +11,7 @@ CREATE TABLE `user_account` (
     `profile_picture_url` VARCHAR(255) DEFAULT NULL,
     `cover_picture_url` VARCHAR(255) DEFAULT NULL,
     `bio` varchar(255) DEFAULT NULL,
+    `gender`  ENUM('male', 'female', 'other')  DEFAULT 'other',
     `hometown` VARCHAR(255) DEFAULT NULL, 
     `date_of_birth` DATE DEFAULT NULL, 
     `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -84,7 +85,8 @@ CREATE TABLE `post_comment` (
     `update_by` varchar(255),
     `is_deleted` BOOLEAN DEFAULT FALSE, 
     FOREIGN KEY (`post_id`) REFERENCES `post`(`post_id`),
-    FOREIGN KEY (`user_id`) REFERENCES `user_account`(`user_id`)
+    FOREIGN KEY (`user_id`) REFERENCES `user_account`(`user_id`),
+    FOREIGN KEY (`parent_comment_id`) REFERENCES `post_comment`(`comment_id`)
 );
 -- quan hệ bạn bè 
 CREATE TABLE `friendship` (
@@ -257,13 +259,32 @@ VALUES
 ('2', '3', '1', 'LOVE', 'Nguyễn Văn A', 'Nguyễn Văn A'),
 ('3', '5', '4', 'WOW', 'Nguyễn Thị C', 'Nguyễn Thị C');
 
--- post_comment
+-- Dữ liệu mẫu cho post_comment với phân cấp
 INSERT INTO `post_comment` 
-(`comment_id`, `post_id`, `user_id`, `content`, `create_by`, `update_by`) 
+(`comment_id`, `post_id`, `user_id`, `content`, `parent_comment_id`, `create_by`, `update_by`) 
 VALUES
-('1', '1', '3', 'Bài viết hay lắm!', 'Phạm Văn H', 'Phạm Văn H'),
-('2', '2', '1', 'Chúc bạn đi chơi vui!', 'Nguyễn Văn A', 'Nguyễn Văn A'),
-('3', '4', '5', 'Mèo của bạn dễ thương quá!', 'Lê Thị D', 'Lê Thị D');
+-- Bình luận gốc (cấp 1)
+('1', '1', '2', 'Bài viết hay quá!', NULL, 'Trần Thị B', 'Trần Thị B'),
+('2', '1', '3', 'Hình ảnh đẹp quá!', NULL, 'Phạm Văn H', 'Phạm Văn H'),
+
+-- Trả lời cho bình luận cấp 1 (cấp 2)
+('3', '1', '4', 'Đồng ý với bạn, rất ấn tượng!', '1', 'Nguyễn Thị C', 'Nguyễn Thị C'),
+('4', '1', '5', 'Chụp bằng máy gì thế nhỉ?', '2', 'Lê Thị D', 'Lê Thị D'),
+
+-- Trả lời cho bình luận cấp 2 (cấp 3)
+('5', '1', '5', 'Hình như chụp bằng máy DSLR!', '4', 'Lê Thị D', 'Lê Thị D'),
+('6', '1', '5', 'Mình nghĩ là điện thoại flagship.', '4', 'Lê Thị D', 'Lê Thị D'),
+
+-- Một chuỗi thảo luận khác (cấp 1, 2, 3)
+('7', '2', '1', 'Mọi người có dự định đi đâu cuối tuần này?', NULL, 'Nguyễn Văn A', 'Nguyễn Văn A'),
+('8', '2', '2', 'Chắc là đi biển, bạn thì sao?', '7', 'Trần Thị B', 'Trần Thị B'),
+('9', '2', '3', 'Mình định leo núi.', '8', 'Phạm Văn H', 'Phạm Văn H'),
+('10', '2', '4', 'Leo núi thú vị đấy, cho mình tham gia với!', '9', 'Nguyễn Thị C', 'Nguyễn Thị C');
+
+
+
+
+
 
 -- friendship
 INSERT INTO `friendship` 
