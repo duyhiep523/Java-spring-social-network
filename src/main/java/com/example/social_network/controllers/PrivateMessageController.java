@@ -1,6 +1,7 @@
 package com.example.social_network.controllers;
 
 import com.example.social_network.dtos.Request.PrivateMessageDTO;
+import com.example.social_network.dtos.Response.PrivateMessageHistoryResponse;
 import com.example.social_network.dtos.Response.PrivateMessageResponse;
 import com.example.social_network.entities.PrivateMessage;
 import com.example.social_network.response.Error;
@@ -76,7 +77,7 @@ public class PrivateMessageController {
             @RequestParam(defaultValue = "10") int size) {
 
 
-        List<PrivateMessageResponse> chatHistory = privateMessageService.getChatHistory(senderId, receiverId, page, size);
+        PrivateMessageHistoryResponse chatHistory = privateMessageService.getChatHistory(senderId, receiverId, page, size);
 
 
         Response<Object> response = Response.builder()
