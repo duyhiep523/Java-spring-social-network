@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PrivateMessage extends BaseEntity {
 
     @Id
@@ -26,7 +27,8 @@ public class PrivateMessage extends BaseEntity {
 
     @Column(name = "message_content", columnDefinition = "TEXT")
     private String messageContent;
-
+    @Column(name = "attachment_url", nullable = false)
+    private String attachmentUrl;
     @Column(name = "message_type", length = 20, nullable = false)
     private String messageType = "TEXT";  // Default value is 'TEXT'
     @Column(name = "is_deleted", nullable = false)
