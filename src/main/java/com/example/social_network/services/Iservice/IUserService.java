@@ -1,12 +1,19 @@
 package com.example.social_network.services.Iservice;
 
 import com.example.social_network.dtos.Request.UserBioUpdateRequest;
+import com.example.social_network.dtos.Request.UserLoginRequest;
 import com.example.social_network.dtos.Request.UserRegisterRequest;
 import com.example.social_network.dtos.Response.UserResponse;
+import com.example.social_network.dtos.Response.UserResponseLogin;
+import com.example.social_network.dtos.Response.UserSearchResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface IUserService {
+import java.util.List;
 
+public interface IUserService {
+    UserResponseLogin login(UserLoginRequest loginRequest);
+
+    List<UserSearchResponse> searchUsers(String keyword, int page, int size);
 
     boolean existsByUserId(String userId);
     boolean existsByUsername(String username);

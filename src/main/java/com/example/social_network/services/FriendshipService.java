@@ -1,6 +1,7 @@
 package com.example.social_network.services;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
+import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.repositories.FriendshipRepository;
 import com.example.social_network.repositories.UserAccountRepository;
@@ -8,7 +9,9 @@ import com.example.social_network.services.Iservice.IFriendshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendshipService implements IFriendshipService {
@@ -80,11 +83,26 @@ public class FriendshipService implements IFriendshipService {
     public void deleteFriendship(String userId1, String userId2) {
         Optional<Friendship> friendshipOpt = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId1, userId2);
         if (friendshipOpt.isEmpty()) {
-            throw new RuntimeException("Đã có mối quan hệ");
+            throw new RuntimeException("Không có mối quan hệ bạn bè");
         }
         Friendship friendship = friendshipOpt.get();
         friendship.setDeleted(true);
         friendshipRepository.save(friendship);
+    }
+
+@Override
+    public List<FriendRequestResponse> getReceivedFriendRequests(String receiverId) {
+        List<Friendship> friendRequests = friendshipRepository
+                .findAllByUser2_UserIdAndStatusAndIsDeletedFalse(receiverId, FriendshipStatus.PENDING);
+
+        return friendRequests.stream()
+                .map(request -> FriendRequestResponse.builder()
+                        .senderId(request.getUser1().getUserId())
+                        .fullName(request.getUser1().getFullName())
+                        .profilePictureUrl(request.getUser1().getProfilePictureUrl())
+                        .sentAt(request.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public FriendshipStatus getFriendshipStatus(String userId1, String userId2) {

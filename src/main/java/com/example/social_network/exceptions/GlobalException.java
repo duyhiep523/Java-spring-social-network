@@ -15,7 +15,11 @@ import java.time.format.DateTimeParseException;
 @RestControllerAdvice
 public class GlobalException {
 
-
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Error> handleRuntimeException(RuntimeException ex) {
+        Error errorResponse = new Error(ex.getMessage(), "500");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<?> handleDateTimeParseException(DateTimeParseException ex) {
         Error errorResponse = new Error(

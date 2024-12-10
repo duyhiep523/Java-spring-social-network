@@ -79,34 +79,7 @@ public class PrivateMessageService implements IPrivateMessageService {
         return response;
     }
 
-//    @Override
-//    public List<PrivateMessageResponse> getChatHistory(String senderId, String receiverId, int page, int size) {
-//        // Kiểm tra sự tồn tại của người gửi và người nhận
-//        User sender = userAccountRepository.findById(senderId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
-//        User receiver = userAccountRepository.findById(receiverId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
-//
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
-//
-//        // Lấy lịch sử tin nhắn
-//        Page<PrivateMessage> messages = privateMessageRepository.findPrivateMessages(senderId, receiverId, pageable);
-//
-//
-//        List<PrivateMessageResponse> chatHistory = messages.stream().map(message -> {
-//            return new PrivateMessageResponse(
-//                    message.getMessageId(),
-//                    new PrivateMessageResponse.SenderReceiverInfo(senderId, sender.getFullName(), sender.getProfilePictureUrl()),  // Thông tin người gửi
-//                    new PrivateMessageResponse.SenderReceiverInfo(receiverId, receiver.getFullName(), receiver.getProfilePictureUrl()),  // Thông tin người nhận
-//                    message.getMessageContent(),
-//                    message.getMessageType(),
-//                    message.getCreatedAt().toString()
-//            );
-//        }).collect(Collectors.toList());
-//
-//        return chatHistory;
-//    }
+
 @Override
 public PrivateMessageHistoryResponse getChatHistory(String senderId, String receiverId, int page, int size) {
     // Kiểm tra sự tồn tại của người gửi và người nhận
@@ -126,11 +99,12 @@ public PrivateMessageHistoryResponse getChatHistory(String senderId, String rece
                     message.getMessageId(),
                     message.getMessageContent(),
                     message.getMessageType(),
-                    message.getCreatedAt().toString()
+                    message.getCreatedAt().toString(),
+                    message.getSender().getUserId().equals(senderId)
             )
     ).collect(Collectors.toList());
 
-    // Tạo response gọn hơn
+
     return new PrivateMessageHistoryResponse(
             new PrivateMessageHistoryResponse.SenderReceiverInfo(
                     senderId, sender.getFullName(), sender.getProfilePictureUrl()),

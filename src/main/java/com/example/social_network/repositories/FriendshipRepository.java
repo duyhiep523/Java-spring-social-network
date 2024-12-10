@@ -20,4 +20,9 @@ public interface FriendshipRepository extends JpaRepository<Friendship,String> {
             "(f.user1.id = :userId1 AND f.user2.id = :userId2) OR " +
             "(f.user1.id = :userId2 AND f.user2.id = :userId1)")
     Optional<Friendship> findByUsers(String userId1, String userId2);
+
+    List<Friendship> findAllByUser2_UserIdAndStatusAndIsDeletedFalse(String userId2, FriendshipStatus status);
+
+
+
 }

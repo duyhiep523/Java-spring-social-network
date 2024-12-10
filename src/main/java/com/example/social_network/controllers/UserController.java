@@ -1,10 +1,9 @@
 package com.example.social_network.controllers;
 
-import com.example.social_network.dtos.Request.UserBioUpdateRequest;
-import com.example.social_network.dtos.Request.UserCoverPictureRequest;
-import com.example.social_network.dtos.Request.UserProfilePictureRequest;
-import com.example.social_network.dtos.Request.UserRegisterRequest;
+import com.example.social_network.dtos.Request.*;
 import com.example.social_network.dtos.Response.UserResponse;
+import com.example.social_network.dtos.Response.UserResponseLogin;
+import com.example.social_network.dtos.Response.UserSearchResponse;
 import com.example.social_network.response.Error;
 import com.example.social_network.response.Response;
 import com.example.social_network.services.Iservice.IUserService;
@@ -123,6 +122,58 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchUsers(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            List<UserSearchResponse> users = iUserService.searchUsers(keyword, page, size);
+
+            Response<Object> response = Response.builder()
+                    .message("Tìm kiếm người dùng thành công")
+                    .data(users)
+                    .success(true)
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Error errorResponse = new Error("Lỗi khi tìm kiếm người dùng: " + e.getMessage(), "500");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @Valid @RequestBody UserLoginRequest loginRequest,
+            BindingResult result) {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            String error = errorMessages.toString();
+            Error errorResponse = new Error(error, "422");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            UserResponseLogin loginResponse = iUserService.login(loginRequest);
+
+            Response<Object> response = Response.builder()
+                    .message("Đăng nhập thành công")
+                    .data(loginResponse)
+                    .success(true)
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Error errorResponse = new Error("Đăng nhập thất bại: " + e.getMessage(), "401");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
 
 
 }

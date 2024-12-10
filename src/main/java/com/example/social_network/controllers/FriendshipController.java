@@ -1,6 +1,7 @@
 package com.example.social_network.controllers;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
+import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.response.Response;
 import com.example.social_network.services.Iservice.IFriendshipService;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("${apiPrefix}/friendship")
@@ -78,6 +81,20 @@ public class FriendshipController {
                 .data(status)
                 .success(true)
                 .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/received-requests")
+    public ResponseEntity<?> getReceivedFriendRequests(@RequestParam String userId2) {
+        List<FriendRequestResponse> friendRequests = friendshipService.getReceivedFriendRequests(userId2);
+
+        Response<Object> response = Response.builder()
+                .message("Lấy danh sách lời mời kết bạn thành công")
+                .data(friendRequests)
+                .success(true)
+                .build();
+
         return ResponseEntity.ok(response);
     }
 }

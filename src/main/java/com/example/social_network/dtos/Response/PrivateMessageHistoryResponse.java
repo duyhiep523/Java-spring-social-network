@@ -30,5 +30,6 @@ public class PrivateMessageHistoryResponse {
         private String messageContent;
         private String messageType;
         private String sentAt;
+        private boolean isSender;
     }
 }
