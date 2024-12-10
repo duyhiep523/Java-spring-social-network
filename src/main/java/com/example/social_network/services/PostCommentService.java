@@ -130,7 +130,7 @@ public class PostCommentService implements IPostCommentService {
 
         PostComment postComment = postCommentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bình luận không tồn tại"));
-        
+
         if (!postComment.getUserAccount().getUserId().equals(userId)) {
             throw new IllegalStateException("Bạn không có quyền xóa bình luận này");
         }
