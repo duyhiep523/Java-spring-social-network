@@ -23,4 +23,6 @@ public interface IFriendshipService {
     List<FriendRequestResponse> getReceivedFriendRequests(String receiverId);
 
     FriendshipStatus getFriendshipStatus(String userId1, String userId2);
+
+    long countFriends(String userId);
 }

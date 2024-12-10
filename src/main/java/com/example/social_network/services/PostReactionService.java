@@ -36,7 +36,7 @@ public class PostReactionService implements IPostReactionService {
             throw new ResourceNotFoundException("Bài viết không tồn tại.");
         }
 
-        // Kiểm tra người dùng có tồn tại không
+
         Optional<User> userOptional = userAccountRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new ResourceNotFoundException("Người dùng không tồn tại.");

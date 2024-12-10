@@ -1,7 +1,6 @@
 package com.example.social_network.services;
 
 import com.example.social_network.dtos.Response.CommentResponse;
-import com.example.social_network.dtos.Response.PostResponse;
 import com.example.social_network.entities.Post;
 import com.example.social_network.entities.PostComment;
 import com.example.social_network.entities.User;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostCommentService implements IPostCommentService {
@@ -26,10 +26,11 @@ public class PostCommentService implements IPostCommentService {
 
     @Autowired
     private UserAccountRepository userRepository;
+
     @Override
     @Transactional
     public CommentResponse addComment(String postId, String userId, String content, String parentCommentId) {
-        // Tìm bài viết và người dùng
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
         User user = userRepository.findById(userId)
@@ -61,23 +62,23 @@ public class PostCommentService implements IPostCommentService {
                 .updatedAt(postComment.getUpdatedAt())
                 .build();
     }
-    @Override
-    @Transactional
-    public CommentResponse editComment(String commentId, String userId, String newContent) {
-        // Tìm bình luận cần sửa
-        PostComment postComment = postCommentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
-        // Kiểm tra xem người dùng có quyền sửa bình luận hay không (chỉ có người tạo mới sửa được)
+    @Override
+    public CommentResponse editComment(String commentId, String userId, String newContent) {
+
+        PostComment postComment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bình luận không tồn tại"));
+
+
         if (!postComment.getUserAccount().getUserId().equals(userId)) {
-            throw new IllegalStateException("You do not have permission to edit this comment");
+            throw new IllegalStateException("Bạn không có quyền sửa bình luận này");
         }
 
-        // Cập nhật nội dung bình luận
+
         postComment.setContent(newContent);
         postComment = postCommentRepository.save(postComment);
 
-        // Trả về thông tin bình luận đã sửa
+
         return CommentResponse.builder()
                 .commentId(postComment.getCommentId())
                 .postId(postComment.getPost().getPostId())
@@ -89,10 +90,56 @@ public class PostCommentService implements IPostCommentService {
                 .build();
     }
 
-    // Lấy tất cả bình luận của một bài viết
-    public List<PostComment> getCommentsByPost(String postId) {
-        return postCommentRepository.findByPost_PostIdOrderByCreatedAtAsc(postId);
+    @Override
+    public List<CommentResponse> getCommentsWithHierarchy(String postId) {
+        List<PostComment> allComments = postCommentRepository.findByPost_PostIdOrderByCreatedAtAsc(postId);
+        return buildCommentHierarchy(allComments, null);
     }
 
+    private List<CommentResponse> buildCommentHierarchy(List<PostComment> allComments, String parentCommentId) {
+        return allComments.stream()
+                .filter(comment -> (comment.getParentComment() == null && parentCommentId == null) ||
+                        (comment.getParentComment() != null && comment.getParentComment().getCommentId().equals(parentCommentId)))
+                .map(comment -> {
+                    CommentResponse response = CommentResponse.builder()
+                            .commentId(comment.getCommentId())
+                            .postId(comment.getPost().getPostId())
+                            .userId(comment.getUserAccount().getUserId())
+                            .content(comment.getContent())
+                            .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getCommentId() : null)
+                            .createdAt(comment.getCreatedAt())
+                            .updatedAt(comment.getUpdatedAt())
+                            .build();
+                    List<CommentResponse> childComments = buildCommentHierarchy(allComments, comment.getCommentId());
+                    response.setChildComments(childComments);
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public long countCommentsByPost(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        return postCommentRepository.countByPost_PostId(postId);
+    }
+
+    @Override
+    public void deleteComment(String commentId, String userId) {
+
+        PostComment postComment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bình luận không tồn tại"));
+        
+        if (!postComment.getUserAccount().getUserId().equals(userId)) {
+            throw new IllegalStateException("Bạn không có quyền xóa bình luận này");
+        }
+
+        if (postCommentRepository.countByParentComment_CommentId(commentId) > 0) {
+            throw new IllegalStateException("Không thể xóa bình luận này vì có bình luận con");
+        }
+
+
+        postCommentRepository.delete(postComment);
+    }
 }

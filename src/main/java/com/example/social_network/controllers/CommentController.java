@@ -1,6 +1,7 @@
 package com.example.social_network.controllers;
 
 import com.example.social_network.dtos.Request.CommentRequest;
+import com.example.social_network.dtos.Request.CommentUpdateRequest;
 import com.example.social_network.dtos.Response.CommentResponse;
 import com.example.social_network.response.Error;
 import com.example.social_network.response.Response;
@@ -50,46 +51,73 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<?> getCommentsByPost(@PathVariable String postId) {
+        List<CommentResponse> comments = commentService.getCommentsWithHierarchy(postId);
 
-//    // Xóa bình luận
-//    @DeleteMapping("/delete/{commentId}")
-//    public ResponseEntity<?> deleteComment(@PathVariable String commentId) {
-//        commentService.deleteComment(commentId);
-//
-//        Response<Object> response = Response.builder()
-//                .message("Bình luận đã được xóa thành công")
-//                .success(true)
-//                .build();
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(response);
-//    }
-//
-//    // Lấy danh sách bình luận của bài viết
-//    @GetMapping("/list/{postId}")
-//    public ResponseEntity<?> getCommentsForPost(@PathVariable String postId) {
-//        List<CommentResponse> comments = commentService.getCommentsForPost(postId);
-//
-//        Response<List<CommentResponse>> response = Response.<List<CommentResponse>>builder()
-//                .message("Danh sách bình luận của bài viết")
-//                .data(comments)
-//                .success(true)
-//                .build();
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    // Lấy số lượng bình luận của bài viết
-//    @GetMapping("/count/{postId}")
-//    public ResponseEntity<?> countCommentsForPost(@PathVariable String postId) {
-//        long commentCount = commentService.countCommentsForPost(postId);
-//
-//        Response<Long> response = Response.<Long>builder()
-//                .message("Số lượng bình luận của bài viết")
-//                .data(commentCount)
-//                .success(true)
-//                .build();
-//
-//        return ResponseEntity.ok(response);
-//    }
+        Response<Object> response = Response.builder()
+                .message("Lấy bình luận thành công")
+                .data(comments)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/count/{postId}")
+    public ResponseEntity<?> countCommentsByPost(@PathVariable String postId) {
+        long commentCount = commentService.countCommentsByPost(postId);
+
+        Response<?> response = Response.builder()
+                .message("Số lượng bình luận của bài viết")
+                .data(commentCount)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<?> editComment(@Valid @RequestBody CommentUpdateRequest commentUpdateRequest, BindingResult result) {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            String error = errorMessages.toString();
+            Error errorResponse = new Error(error, "422");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        CommentResponse updatedComment = commentService.editComment(
+                commentUpdateRequest.getCommentId(),
+                commentUpdateRequest.getUserId(),
+                commentUpdateRequest.getNewContent()
+        );
+
+        Response<?> response = Response.builder()
+                .message("Bình luận đã được sửa thành công")
+                .data(updatedComment)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteComment(
+            @RequestParam String commentId,
+            @RequestParam String userId
+    ) {
+        commentService.deleteComment(commentId, userId);
+        Response<Object> response = Response.builder()
+                .message("Bình luận đã được xóa thành công")
+                .data(null)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 
 }

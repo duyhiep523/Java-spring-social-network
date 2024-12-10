@@ -97,4 +97,16 @@ public class FriendshipController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/count/{userId}")
+    public ResponseEntity<?> countFriends(@PathVariable String userId) {
+        long count = friendshipService.countFriends(userId);  // Gọi service để đếm số bạn bè
+        Response<Object> response = Response.builder()
+                .message("Đếm số bạn bè thành công")
+                .data(count)
+                .success(true)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 }

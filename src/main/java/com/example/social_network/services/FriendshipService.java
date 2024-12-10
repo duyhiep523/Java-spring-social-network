@@ -3,6 +3,7 @@ package com.example.social_network.services;
 import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.entities.Friendship;
+import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.FriendshipRepository;
 import com.example.social_network.repositories.UserAccountRepository;
 import com.example.social_network.services.Iservice.IFriendshipService;
@@ -68,6 +69,7 @@ public class FriendshipService implements IFriendshipService {
         friendship.setStatus(FriendshipStatus.BLOCK);
         return friendshipRepository.save(friendship);
     }
+
     public Friendship unBlockFriendship(String userId1, String userId2) {
         Optional<Friendship> friendshipOpt = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId1, userId2);
 
@@ -90,7 +92,7 @@ public class FriendshipService implements IFriendshipService {
         friendshipRepository.save(friendship);
     }
 
-@Override
+    @Override
     public List<FriendRequestResponse> getReceivedFriendRequests(String receiverId) {
         List<Friendship> friendRequests = friendshipRepository
                 .findAllByUser2_UserIdAndStatusAndIsDeletedFalse(receiverId, FriendshipStatus.PENDING);
@@ -111,6 +113,12 @@ public class FriendshipService implements IFriendshipService {
             throw new RuntimeException("Friendship not found or already deleted");
         }
         return friendshipOpt.get().getStatus();
+    }
+
+    @Override
+    public long countFriends(String userId) {
+        userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
+        return friendshipRepository.countFriendsByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED);
     }
 
 
