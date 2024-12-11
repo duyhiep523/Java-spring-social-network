@@ -15,5 +15,5 @@ public interface IHighlightStoryService {
     void updateHighlightStory(String highlightStoryId, String highlightStoryName);
     HighlightStory findHighlightStoryById(String highlightStoryId);
     HighlightStoryDetailResponse getHighlightStoryDetail(String highlightStoryId);
-    List<HighlightStoryDetailResponse> getAllHighlightStoryDetails();
+    List<HighlightStoryDetailResponse> getAllHighlightStoryDetails(String userId);
 }

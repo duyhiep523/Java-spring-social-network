@@ -89,9 +89,9 @@ public class HighlightStoryController {
                 .build();
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/allDetails")
-    public ResponseEntity<?> getAllHighlightStoryDetails() {
-        List<HighlightStoryDetailResponse> highlightStoryDetails = highlightStoryService.getAllHighlightStoryDetails();
+    @GetMapping("/allDetails/{userId}")
+    public ResponseEntity<?> getAllHighlightStoryDetails(@PathVariable String userId) {
+        List<HighlightStoryDetailResponse> highlightStoryDetails = highlightStoryService.getAllHighlightStoryDetails(userId);
         Response<Object> response = Response.builder()
                 .message("Lấy danh sách chi tiết tất cả HighlightStory thành công")
                 .data(highlightStoryDetails)

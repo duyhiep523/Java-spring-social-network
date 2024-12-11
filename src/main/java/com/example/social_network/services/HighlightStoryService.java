@@ -5,6 +5,7 @@ import com.example.social_network.dtos.Response.HighlightStoryDetailResponse;
 import com.example.social_network.dtos.Response.HighlightStoryImageResponse;
 import com.example.social_network.dtos.Response.HighlightStoryResponse;
 import com.example.social_network.entities.*;
+import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.HighlightStoryImageRepository;
 import com.example.social_network.repositories.HighlightStoryRepository;
 import com.example.social_network.repositories.UserAccountRepository;
@@ -109,8 +110,13 @@ public class HighlightStoryService implements IHighlightStoryService {
     }
 
     @Override
-    public List<HighlightStoryDetailResponse> getAllHighlightStoryDetails() {
-        List<HighlightStory> highlightStories = highlightStoryRepository.findAll();
+    public List<HighlightStoryDetailResponse> getAllHighlightStoryDetails(String userId) {
+        userAccountRepository.findById(userId)
+                .orElseThrow(()
+                        -> new ResourceNotFoundException("Người dùng không tồn tại"));
+
+
+        List<HighlightStory> highlightStories = highlightStoryRepository.findByUserAccount_UserId(userId);
         return highlightStories.stream().map(highlightStory -> {
             List<HighlightStoryImage> images = highlightStoryImageRepository.findByHighlightStory(highlightStory);
             List<HighlightStoryImageResponse> imageResponses = images.stream().map(image ->
