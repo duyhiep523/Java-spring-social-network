@@ -35,4 +35,6 @@ public class Friendship extends BaseEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
+    @Column(name = "u_sent", nullable = false)
+    private String uSent;
 }

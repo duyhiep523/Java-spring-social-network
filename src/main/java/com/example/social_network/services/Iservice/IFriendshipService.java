@@ -2,6 +2,7 @@ package com.example.social_network.services.Iservice;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
+import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public interface IFriendshipService {
 
     List<FriendRequestResponse> getReceivedFriendRequests(String receiverId);
 
-    FriendshipStatus getFriendshipStatus(String userId1, String userId2);
+    FriendShipStatusUSent getFriendshipStatus(String userId1, String userId2);
 
     long countFriends(String userId);
 }

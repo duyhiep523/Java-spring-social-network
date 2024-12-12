@@ -98,6 +98,7 @@ CREATE TABLE `friendship` (
     `create_by` varchar(255),
     `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `update_by` varchar(255),
+	`u_sent` varchar(50),
     `is_deleted` BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (`user_id_1`) REFERENCES `user_account`(`user_id`),
     FOREIGN KEY (`user_id_2`) REFERENCES `user_account`(`user_id`)

@@ -2,6 +2,7 @@ package com.example.social_network.services;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
+import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.FriendshipRepository;
@@ -39,6 +40,7 @@ public class FriendshipService implements IFriendshipService {
                 .user2(userRepository.findById(userId2).orElseThrow(() -> new RuntimeException("User not found")))
                 .status(FriendshipStatus.PENDING)
                 .isDeleted(false)
+                .uSent(userId1)
                 .build();
         return friendshipRepository.save(friendship);
     }
@@ -106,13 +108,24 @@ public class FriendshipService implements IFriendshipService {
                         .build())
                 .collect(Collectors.toList());
     }
-
-    public FriendshipStatus getFriendshipStatus(String userId1, String userId2) {
+@Override
+    public FriendShipStatusUSent getFriendshipStatus(String userId1, String userId2) {
         Optional<Friendship> friendshipOpt = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId1, userId2);
+        Optional<Friendship> friendshipOpt2 = friendshipRepository.findByUser1AndUser2AndIsDeletedFalse(userId2, userId1);
+
         if (friendshipOpt.isEmpty()) {
-            throw new RuntimeException("Friendship not found or already deleted");
-        }
-        return friendshipOpt.get().getStatus();
+            if (friendshipOpt2.isEmpty()) {
+                throw new RuntimeException("Friendship not found or already deleted");
+            }
+            return FriendShipStatusUSent.builder()
+                    .status(friendshipOpt2.get().getStatus())
+                    .uSent(friendshipOpt2.get().getUSent())
+                    .build();
+        } else
+                return FriendShipStatusUSent.builder()
+                    .status(friendshipOpt.get().getStatus())
+                    .uSent(friendshipOpt.get().getUSent())
+                    .build();
     }
 
     @Override

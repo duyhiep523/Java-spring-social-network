@@ -2,17 +2,16 @@ package com.example.social_network.services;
 
 import com.example.social_network.dtos.Request.PostRequest;
 import com.example.social_network.dtos.Response.PostResponse;
+import com.example.social_network.dtos.Response.PostResponseDetail;
 import com.example.social_network.entities.Post;
 import com.example.social_network.entities.PostImage;
 import com.example.social_network.entities.User;
-import com.example.social_network.repositories.PostImageRepository;
-import com.example.social_network.repositories.PostRepository;
-import com.example.social_network.repositories.UserAccountRepository;
+import com.example.social_network.exceptions.ResourceNotFoundException;
+import com.example.social_network.repositories.*;
 import com.example.social_network.services.Iservice.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,10 @@ public class PostService implements IPostService {
     private PostImageRepository postImageRepository;
     @Autowired
     private PostImageService postImageService;
-
+    @Autowired
+    private PostCommentRepository postCommentRepository;
+    @Autowired
+    private PostReactionRepository postReactionRepository;
 
     @Override
     @Transactional
@@ -54,19 +56,90 @@ public class PostService implements IPostService {
                 .privacy(savedPost.getPrivacy())
                 .createAt(savedPost.getCreatedAt())
                 .images(imageUrls)
+                .isDeleted(false)
                 .build();
     }
 
 
     @Override
-    public Post updatePost(Long postId, PostRequest postUpdateRequest) {
-        return null;
+    public PostResponseDetail getPostById(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
+
+        long commentCount = postCommentRepository.countByPost_PostId(postId);
+        long reactionCount = postReactionRepository.countByPost_PostId(postId);
+
+
+        List<String> imageUrls = postImageRepository.findByPost_PostId(postId).stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
+
+        PostResponse postResponse = PostResponse
+                .builder()
+                .postId(post.getPostId())
+                .userId(post.getUserAccount().getUserId())
+                .content(post.getContent())
+                .privacy(post.getPrivacy())
+                .createAt(post.getCreatedAt())
+                .images(imageUrls)
+                .isDeleted(post.getIsDeleted())
+                .build();
+        return PostResponseDetail.builder()
+                .postResponse(postResponse)
+                .commentCount(commentCount)
+                .reactionCount(reactionCount)
+                .build();
     }
 
     @Override
-    public void deletePost(Long postId) {
-
+    @Transactional
+    public void deletePost(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
+        post.setIsDeleted(true);
+        postRepository.save(post);
     }
+
+
+    @Override
+    public PostResponse updatePost(String postId, PostRequest postUpdateRequest) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
+
+
+        post.setContent(postUpdateRequest.getContent());
+        post.setPrivacy(postUpdateRequest.getPrivacy() != null ? postUpdateRequest.getPrivacy() : post.getPrivacy());
+
+        // Cập nhật ảnh nếu có
+//        if (postUpdateRequest.getImages() != null && !postUpdateRequest.getImages().isEmpty()) {
+//            // Xoá ảnh cũ
+//            postImageRepository.deleteByPost_PostId(postId);
+//            // Lưu ảnh mới
+//            List<PostImage> newImages = postImageService.savePostImages(post, postUpdateRequest.getImages());
+//            post.setPostImages(newImages);
+//        }
+
+        // Lưu bài viết cập nhật
+        Post updatedPost = postRepository.save(post);
+
+        List<String> imageUrls = postImageRepository.findByPost_PostId(postId).stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
+
+        return PostResponse.builder()
+                .postId(updatedPost.getPostId())
+                .userId(updatedPost.getUserAccount().getUserId())
+                .content(updatedPost.getContent())
+                .privacy(updatedPost.getPrivacy())
+                .createAt(updatedPost.getCreatedAt())
+                .images(imageUrls)
+                .isDeleted(updatedPost.getIsDeleted())
+                .build();
+    }
+
+
 
     @Override
     public PostResponse getPostById(Long postId) {

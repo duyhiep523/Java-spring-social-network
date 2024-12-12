@@ -2,6 +2,7 @@ package com.example.social_network.controllers;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
+import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.response.Response;
 import com.example.social_network.services.Iservice.IFriendshipService;
@@ -75,7 +76,7 @@ public class FriendshipController {
 
     @GetMapping("/status")
     public ResponseEntity<?> getFriendshipStatus(@RequestParam String userId1, @RequestParam String userId2) {
-        FriendshipStatus status = friendshipService.getFriendshipStatus(userId1, userId2);
+        FriendShipStatusUSent status = friendshipService.getFriendshipStatus(userId1, userId2);
         Response<Object> response = Response.builder()
                 .message("Lấy trạng thái mối quan hệ thành công")
                 .data(status)

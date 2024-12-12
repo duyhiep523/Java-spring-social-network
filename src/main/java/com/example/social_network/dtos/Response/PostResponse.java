@@ -4,10 +4,7 @@ package com.example.social_network.dtos.Response;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +13,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 public class PostResponse {
     @JsonProperty("post_id")
     private String postId;
@@ -28,6 +27,7 @@ public class PostResponse {
 
     @JsonProperty("images")
     private List<String> images;
+    private Boolean isDeleted;
 }
 
 
