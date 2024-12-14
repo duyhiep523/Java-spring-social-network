@@ -19,6 +19,9 @@ public class PostRequest {
     @JsonProperty("privacy")
     private String privacy;
     private String content;
+    private String theme= null;
+    private String share= null;
+
     @JsonProperty("images")
     private List<MultipartFile> images;
 }

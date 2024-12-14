@@ -20,6 +20,9 @@ public class PostResponse {
     private String postId;
     private String content;
     private String privacy;
+    private String theme;
+    private String share;
+
     @JsonProperty("user_id")
     private String userId;
     @JsonProperty("create_at")

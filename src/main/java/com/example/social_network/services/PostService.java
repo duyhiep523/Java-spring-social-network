@@ -1,6 +1,8 @@
 package com.example.social_network.services;
 
 import com.example.social_network.dtos.Request.PostRequest;
+import com.example.social_network.dtos.Request.PostUpdateRequest;
+import com.example.social_network.dtos.Response.NewsFeed;
 import com.example.social_network.dtos.Response.PostResponse;
 import com.example.social_network.dtos.Response.PostResponseDetail;
 import com.example.social_network.entities.Post;
@@ -10,11 +12,16 @@ import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.*;
 import com.example.social_network.services.Iservice.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService implements IPostService {
@@ -40,6 +47,9 @@ public class PostService implements IPostService {
                 .userAccount(user)
                 .content(postRequest.getContent())
                 .privacy(postRequest.getPrivacy() != null ? postRequest.getPrivacy() : "public")
+                .theme(postRequest.getTheme())
+                .share(postRequest.getShare())
+                .isDeleted(false)
                 .build();
         Post savedPost = postRepository.save(post);
         List<PostImage> postImages = new ArrayList<>();
@@ -56,6 +66,8 @@ public class PostService implements IPostService {
                 .privacy(savedPost.getPrivacy())
                 .createAt(savedPost.getCreatedAt())
                 .images(imageUrls)
+                .theme(savedPost.getTheme())
+                .share(savedPost.getShare())
                 .isDeleted(false)
                 .build();
     }
@@ -84,6 +96,8 @@ public class PostService implements IPostService {
                 .createAt(post.getCreatedAt())
                 .images(imageUrls)
                 .isDeleted(post.getIsDeleted())
+                .theme(post.getTheme())
+                .share(post.getShare())
                 .build();
         return PostResponseDetail.builder()
                 .postResponse(postResponse)
@@ -103,22 +117,23 @@ public class PostService implements IPostService {
 
 
     @Override
-    public PostResponse updatePost(String postId, PostRequest postUpdateRequest) {
+    @Transactional
+    public PostResponse updatePost(String postId, PostUpdateRequest postUpdateRequest) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
 
 
         post.setContent(postUpdateRequest.getContent());
         post.setPrivacy(postUpdateRequest.getPrivacy() != null ? postUpdateRequest.getPrivacy() : post.getPrivacy());
+        post.setTheme(postUpdateRequest.getTheme());
 
-        // Cập nhật ảnh nếu có
-//        if (postUpdateRequest.getImages() != null && !postUpdateRequest.getImages().isEmpty()) {
-//            // Xoá ảnh cũ
-//            postImageRepository.deleteByPost_PostId(postId);
-//            // Lưu ảnh mới
-//            List<PostImage> newImages = postImageService.savePostImages(post, postUpdateRequest.getImages());
-//            post.setPostImages(newImages);
-//        }
+       //  Cập nhật ảnh nếu có
+        if (postUpdateRequest.getImages() != null && !postUpdateRequest.getImages().isEmpty()) {
+            // Xoá ảnh cũ
+            postImageRepository.deleteByPost_PostId(postId);
+            List<PostImage> newImages = postImageService.savePostImages(post, postUpdateRequest.getImages());
+
+        }
 
         // Lưu bài viết cập nhật
         Post updatedPost = postRepository.save(post);
@@ -136,9 +151,56 @@ public class PostService implements IPostService {
                 .createAt(updatedPost.getCreatedAt())
                 .images(imageUrls)
                 .isDeleted(updatedPost.getIsDeleted())
+                .theme(updatedPost.getTheme())
+                .share(updatedPost.getShare())
+                .build();
+    }
+    @Override
+    public NewsFeed getAllPostsByUserIdFromFriend(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("create_at")));
+        Page<Post> posts = postRepository.findAllPostsByFriendship(userId, pageable);
+        List<PostResponse> postResponses = posts.getContent().stream()
+                .map(this::convertToPostResponse)
+                .collect(Collectors.toList());
+        return  new NewsFeed(postResponses, posts.getTotalElements(), posts.getTotalPages(), posts.getNumber(), posts.getSize());
+    }
+
+    private PostResponse convertToPostResponse(Post post) {
+        List<String> imageUrls = postImageRepository.findByPost_PostId(post.getPostId()).stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
+        return PostResponse.builder()
+                .postId(post.getPostId())
+                .content(post.getContent())
+                .privacy(post.getPrivacy())
+                .theme(post.getTheme())
+                .share(post.getShare())
+                .userId(post.getUserAccount().getUserId())
+                .createAt(post.getCreatedAt())
+                .images(imageUrls)
+                .isDeleted(post.getIsDeleted())
                 .build();
     }
 
+
+    @Override
+    public NewsFeed getAllPostsByUserId(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<Post> posts = postRepository.findPostsByUserId(userId, pageable);
+
+        List<PostResponse> postResponses = posts.getContent().stream()
+                .map(this::convertToPostResponse)
+                .collect(Collectors.toList());
+        return new NewsFeed(
+                postResponses,
+                posts.getTotalElements(),
+                posts.getTotalPages(),
+                posts.getNumber(),
+                posts.getSize()
+        );
+    }
 
 
     @Override

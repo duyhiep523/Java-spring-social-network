@@ -1,13 +1,14 @@
 package com.example.social_network.services;
 
+import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Request.UserBioUpdateRequest;
 import com.example.social_network.dtos.Request.UserLoginRequest;
 import com.example.social_network.dtos.Request.UserRegisterRequest;
-import com.example.social_network.dtos.Response.UserResponse;
-import com.example.social_network.dtos.Response.UserResponseLogin;
-import com.example.social_network.dtos.Response.UserSearchResponse;
+import com.example.social_network.dtos.Response.*;
+import com.example.social_network.entities.Friendship;
 import com.example.social_network.entities.User;
 import com.example.social_network.exceptions.ResourceNotFoundException;
+import com.example.social_network.repositories.FriendshipRepository;
 import com.example.social_network.repositories.UserAccountRepository;
 import com.example.social_network.services.Iservice.IUserService;
 import com.example.social_network.utils.UserSpecification;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,8 @@ public class UserService implements IUserService {
     private UserAccountRepository userRepository;
     @Autowired
     private com.example.social_network.services.CloudinaryService cloudinaryService;
-
+    @Autowired
+    private FriendshipRepository friendshipRepository;
 
     @Override
     public UserResponse register(UserRegisterRequest userDTO) {
@@ -63,6 +66,7 @@ public class UserService implements IUserService {
                 .isDeleted(user.getIsDeleted())
                 .build();
     }
+
     @Override
     public UserResponse updateBio(String userId, UserBioUpdateRequest bioRequest) {
         User user = userRepository.findById(userId)
@@ -77,9 +81,14 @@ public class UserService implements IUserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .bio(user.getBio())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .coverPictureUrl(user.getCoverPictureUrl())
+                .gender(user.getGender())
+                .hometown(user.getHometown())
+                .dateOfBirth(user.getDateOfBirth())
+                .isDeleted(user.getIsDeleted())
                 .build();
     }
-
 
 
     @Override
@@ -97,10 +106,15 @@ public class UserService implements IUserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .bio(user.getBio())
                 .profilePictureUrl(user.getProfilePictureUrl())
+                .coverPictureUrl(user.getCoverPictureUrl())
+                .gender(user.getGender())
+                .hometown(user.getHometown())
+                .dateOfBirth(user.getDateOfBirth())
+                .isDeleted(user.getIsDeleted())
                 .build();
     }
-
 
 
     @Override
@@ -118,7 +132,13 @@ public class UserService implements IUserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .bio(user.getBio())
+                .profilePictureUrl(user.getProfilePictureUrl())
                 .coverPictureUrl(user.getCoverPictureUrl())
+                .gender(user.getGender())
+                .hometown(user.getHometown())
+                .dateOfBirth(user.getDateOfBirth())
+                .isDeleted(user.getIsDeleted())
                 .build();
     }
 
@@ -151,7 +171,48 @@ public class UserService implements IUserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public UserResponse getUserById(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
 
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .bio(user.getBio())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .coverPictureUrl(user.getCoverPictureUrl())
+                .gender(user.getGender())
+                .dateOfBirth(user.getDateOfBirth())
+                .isDeleted(user.getIsDeleted())
+                .build();
+    }
+
+    @Override
+    public FriendsListDTO getFriendsByUserId(String userId) {
+        List<Friendship> friendships = friendshipRepository.findByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED);
+
+        List<FriendDTO> friends = friendships.stream()
+                .map(friendship -> {
+                    String friendId = (friendship.getUser1().getUserId().equals(userId)) ? friendship.getUser2().getUserId() : friendship.getUser1().getUserId();
+                    User friendUser = userRepository.findById(friendId).orElse(null);
+                    if (friendUser != null) {
+                        return new FriendDTO(
+                                friendUser.getUserId(),
+                                friendUser.getFullName(),
+                                friendUser.getEmail(),
+                                friendUser.getProfilePictureUrl()
+                        );
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return new FriendsListDTO(friends);
+    }
 
     @Override
     public boolean existsByUserId(String userId) {

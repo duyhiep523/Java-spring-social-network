@@ -1,6 +1,7 @@
 package com.example.social_network.controllers;
 
 import com.example.social_network.dtos.Request.*;
+import com.example.social_network.dtos.Response.FriendsListDTO;
 import com.example.social_network.dtos.Response.UserResponse;
 import com.example.social_network.dtos.Response.UserResponseLogin;
 import com.example.social_network.dtos.Response.UserSearchResponse;
@@ -72,6 +73,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
     @PatchMapping("/{userId}/update-profile-picture")
     public ResponseEntity<?> updateProfilePicture(
             @PathVariable String userId,
@@ -97,6 +99,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
     @PatchMapping("/{userId}/update-cover-picture")
     public ResponseEntity<?> updateCoverPicture(
             @PathVariable String userId,
@@ -143,6 +146,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody UserLoginRequest loginRequest,
@@ -174,6 +178,26 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable String userId) {
+        UserResponse userResponse = iUserService.getUserById(userId);
+        Response<Object> response = Response.builder()
+                .message("Lấy thông tin người dùng thành công")
+                .data(userResponse)
+                .success(true)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/{userId}/friends")
+    public ResponseEntity<?> getFriends(@PathVariable String userId) {
+        FriendsListDTO friendsListDTO = iUserService.getFriendsByUserId(userId);
+        Response<Object> response = Response.builder()
+                .message("Lấy danh sách bạn bè thành công")
+                .data(friendsListDTO)
+                .success(true)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
 }

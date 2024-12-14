@@ -37,8 +37,11 @@ CREATE TABLE `post` (
     `user_id`  varchar(50),
     `content` TEXT,
     `privacy` ENUM('public', 'private', 'friends')  DEFAULT 'public',  
+    `theme` varchar(50) ,
+     `share` varchar(250),
     `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `create_by` varchar(255),
+   
     `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `update_by` varchar(255),
     `is_deleted` BOOLEAN DEFAULT FALSE,
@@ -103,6 +106,33 @@ CREATE TABLE `friendship` (
     FOREIGN KEY (`user_id_1`) REFERENCES `user_account`(`user_id`),
     FOREIGN KEY (`user_id_2`) REFERENCES `user_account`(`user_id`)
 );
+
+-- tin nổi bật
+CREATE TABLE `highlight_story` (
+    `story_id`  varchar(50) PRIMARY KEY ,
+    `user_id` varchar(50),
+    `story_name` VARCHAR(100) NOT NULL, 
+    `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `create_by` varchar(255),
+    `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `update_by` varchar(255),
+    `is_deleted` BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (`user_id`) REFERENCES `user_account`(`user_id`)
+);
+-- các ảnh đi kèm trong bộ sưu tập nổi bật
+CREATE TABLE `highlight_story_image` (
+    `image_id`  varchar(50) PRIMARY KEY ,
+    `story_id` varchar(50),  
+    `image_url` VARCHAR(255) NOT NULL, 
+    `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `create_by` varchar(255),
+    `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `update_by` varchar(255),
+    `is_deleted` BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (`story_id`) REFERENCES `highlight_story`(`story_id`) ON DELETE CASCADE
+);
+
+
 -- nhóm chat 
 CREATE TABLE `group_chat` (
     `group_id`  varchar(50) PRIMARY KEY ,
@@ -185,30 +215,6 @@ CREATE TABLE `private_message_attachment` (
     FOREIGN KEY (`message_id`) REFERENCES `private_message`(`message_id`)
 );
 
--- tin nổi bật
-CREATE TABLE `highlight_story` (
-    `story_id`  varchar(50) PRIMARY KEY ,
-    `user_id` varchar(50),
-    `story_name` VARCHAR(100) NOT NULL, 
-    `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `create_by` varchar(255),
-    `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `update_by` varchar(255),
-    `is_deleted` BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (`user_id`) REFERENCES `user_account`(`user_id`)
-);
--- các ảnh đi kèm trong bộ sưu tập nổi bật
-CREATE TABLE `highlight_story_image` (
-    `image_id`  varchar(50) PRIMARY KEY ,
-    `story_id` varchar(50),  
-    `image_url` VARCHAR(255) NOT NULL, 
-    `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `create_by` varchar(255),
-    `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `update_by` varchar(255),
-    `is_deleted` BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (`story_id`) REFERENCES `highlight_story`(`story_id`) ON DELETE CASCADE
-);
 
 
 

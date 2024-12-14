@@ -17,7 +17,10 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "post_id", length = 50, nullable = false)
     private String postId;
-
+    @Column(name = "theme", length = 50)
+    private String theme;
+    @Column(name = "share", length = 250)
+    private String share;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User userAccount;
