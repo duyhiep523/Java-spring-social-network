@@ -11,4 +11,6 @@ public interface IPrivateMessageService {
     PrivateMessageResponse createMessage(PrivateMessageDTO request);
 
     PrivateMessageHistoryResponse getChatHistory(String senderId, String receiverId, int page, int size);
+
+    void deleteMessage(String messageId, String userId);
 }

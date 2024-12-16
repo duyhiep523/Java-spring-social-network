@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,6 +13,10 @@ public class PrivateMessageHistoryResponse {
     private SenderReceiverInfo sender;
     private SenderReceiverInfo receiver;
     private List<PrivateMessageResponse> messages;
+    private Long totalElements;
+    private int totalPages;
+    private int currentPage;
+    private int pageSize;
 
     @Getter
     @Setter
@@ -30,6 +35,7 @@ public class PrivateMessageHistoryResponse {
         private String messageContent;
         private String messageType;
         private String sentAt;
-        private boolean isSender;
+        private Boolean isDelete;
+        private Boolean isSender;
     }
 }

@@ -15,6 +15,7 @@ public class PrivateMessageResponse {
     private String messageContent;
     private String messageType;
     private String sentAt;
+    private boolean isDelete;
 
     @Getter
     @Setter

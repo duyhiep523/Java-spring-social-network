@@ -30,6 +30,7 @@ public class FriendshipService implements IFriendshipService {
             if (friendship.isDeleted()) {
                 friendship.setDeleted(false);
                 friendship.setStatus(FriendshipStatus.PENDING);
+                friendship.setUSent(userId1);
                 return friendshipRepository.save(friendship);
 
             }

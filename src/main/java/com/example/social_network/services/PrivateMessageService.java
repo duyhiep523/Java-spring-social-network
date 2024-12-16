@@ -44,12 +44,12 @@ public class PrivateMessageService implements IPrivateMessageService {
         message.setReceiver(receiver);
         message.setMessageContent(request.getMessageContent());
         message.setMessageType(request.getMessageType());
-
+        message.setIsDeleted(false);
         // Xử lý tệp đính kèm nếu có
         if ("FILE".equals(request.getMessageType()) && request.getAttachments() != null && request.getAttachments().length > 0) {
             List<String> fileUrls = new ArrayList<>();
             for (MultipartFile file : request.getAttachments()) {
-                String fileUrl = cloudinaryService.uploadImage(file); // Giả sử CloudinaryService dùng để upload file
+                String fileUrl = cloudinaryService.uploadImage(file);
                 fileUrls.add(fileUrl);
             }
             message.setAttachmentUrl(String.join(",", fileUrls));
@@ -73,46 +73,63 @@ public class PrivateMessageService implements IPrivateMessageService {
                 ),
                 savedMessage.getMessageContent(),
                 savedMessage.getMessageType(),
-                savedMessage.getCreatedAt().toString()
+                savedMessage.getCreatedAt().toString(),
+                savedMessage.getIsDeleted()
         );
 
         return response;
     }
 
 
-@Override
-public PrivateMessageHistoryResponse getChatHistory(String senderId, String receiverId, int page, int size) {
-    // Kiểm tra sự tồn tại của người gửi và người nhận
-    User sender = userAccountRepository.findById(senderId)
-            .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
-    User receiver = userAccountRepository.findById(receiverId)
-            .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
+    @Override
+    public PrivateMessageHistoryResponse getChatHistory(String senderId, String receiverId, int page, int size) {
 
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+        User sender = userAccountRepository.findById(senderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
+        User receiver = userAccountRepository.findById(receiverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
 
-    // Lấy lịch sử tin nhắn
-    Page<PrivateMessage> messages = privateMessageRepository.findPrivateMessages(senderId, receiverId, pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("create_at").ascending());
 
-    // Map danh sách tin nhắn sang DTO
-    List<PrivateMessageHistoryResponse.PrivateMessageResponse> chatHistory = messages.stream().map(message ->
-            new PrivateMessageHistoryResponse.PrivateMessageResponse(
-                    message.getMessageId(),
-                    message.getMessageContent(),
-                    message.getMessageType(),
-                    message.getCreatedAt().toString(),
-                    message.getSender().getUserId().equals(senderId)
-            )
-    ).collect(Collectors.toList());
+        Page<PrivateMessage> messages = privateMessageRepository.findPrivateMessages(senderId, receiverId, pageable);
 
 
-    return new PrivateMessageHistoryResponse(
-            new PrivateMessageHistoryResponse.SenderReceiverInfo(
-                    senderId, sender.getFullName(), sender.getProfilePictureUrl()),
-            new PrivateMessageHistoryResponse.SenderReceiverInfo(
-                    receiverId, receiver.getFullName(), receiver.getProfilePictureUrl()),
-            chatHistory
-    );
-}
+        List<PrivateMessageHistoryResponse.PrivateMessageResponse> chatHistory = messages.stream().map(message ->
+                new PrivateMessageHistoryResponse.PrivateMessageResponse(
+                        message.getMessageId(),
+                        message.getMessageContent(),
+                        message.getMessageType(),
+                        message.getCreatedAt().toString(),
+                        message.getIsDeleted(),
+                        message.getSender().getUserId().equals(senderId)
+                )
+        ).collect(Collectors.toList());
+
+
+        return new PrivateMessageHistoryResponse(
+                new PrivateMessageHistoryResponse.SenderReceiverInfo(
+                        senderId, sender.getFullName(), sender.getProfilePictureUrl()),
+                new PrivateMessageHistoryResponse.SenderReceiverInfo(
+                        receiverId, receiver.getFullName(), receiver.getProfilePictureUrl()),
+                chatHistory,
+                messages.getTotalElements(),
+                messages.getTotalPages(),
+                page,
+                size
+        );
+    }
+
+    @Override
+    public void deleteMessage(String messageId, String userId) {
+        PrivateMessage message = privateMessageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found"));
+
+        if (!message.getSender().getUserId().equals(userId) && !message.getReceiver().getUserId().equals(userId)) {
+            throw new SecurityException("You are not authorized to delete this message");
+        }
+        message.setIsDeleted(true);
+        privateMessageRepository.save(message);
+    }
 
 
 }

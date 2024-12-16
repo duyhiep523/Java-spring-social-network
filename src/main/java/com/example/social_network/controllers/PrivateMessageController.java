@@ -40,8 +40,6 @@ public class PrivateMessageController {
     public ResponseEntity<?> sendMessage(
             @Valid @ModelAttribute PrivateMessageDTO request,
             BindingResult result) {
-
-        // Kiểm tra lỗi xác thực
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors()
                     .stream()
@@ -49,8 +47,6 @@ public class PrivateMessageController {
                     .toList();
             return ResponseEntity.badRequest().body(new Error(errorMessages.toString(), "422"));
         }
-
-        // Tạo tin nhắn
         PrivateMessageResponse message = privateMessageService.createMessage(request);
 
         // Gửi tin nhắn tới người nhận qua WebSocket
@@ -89,6 +85,18 @@ public class PrivateMessageController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
+    @DeleteMapping("/delete/{messageId}")
+    public ResponseEntity<?> deleteMessage(
+            @PathVariable String messageId,
+            @RequestParam String userId) {
+        privateMessageService.deleteMessage(messageId, userId);
 
+        Response<Object> response = Response.builder()
+                .message("Tin nhắn đã được xóa thành công")
+                .success(true)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }
