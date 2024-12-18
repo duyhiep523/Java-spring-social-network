@@ -34,6 +34,7 @@ public class PrivateMessageHistoryResponse {
         private String messageId;
         private String messageContent;
         private String messageType;
+        private String attachment;
         private String sentAt;
         private Boolean isDelete;
         private Boolean isSender;

@@ -4,19 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
-public class PrivateMessageResponse {
-
+public class GroupMessageResponse {
     private String messageId;
-    private SenderReceiverInfo sender;
-    private SenderReceiverInfo receiver;
+    private GroupMessageResponse.SenderReceiverInfo sender;
+
     private String messageContent;
     private String messageType;
     private String attachment;
-    private String sentAt;
     private boolean isDelete;
+    private String createdAt;
 
     @Getter
     @Setter

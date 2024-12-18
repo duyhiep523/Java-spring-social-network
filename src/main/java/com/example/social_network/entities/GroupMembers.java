@@ -32,4 +32,12 @@ public class GroupMembers extends BaseEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+
+    @PrePersist
+    public void onCreate() {
+        if (joinDate == null) {
+            joinDate = LocalDateTime.now();
+        }
+    }
 }

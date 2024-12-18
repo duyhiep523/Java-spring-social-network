@@ -73,6 +73,7 @@ public class PrivateMessageService implements IPrivateMessageService {
                 ),
                 savedMessage.getMessageContent(),
                 savedMessage.getMessageType(),
+                savedMessage.getAttachmentUrl(),
                 savedMessage.getCreatedAt().toString(),
                 savedMessage.getIsDeleted()
         );
@@ -99,6 +100,7 @@ public class PrivateMessageService implements IPrivateMessageService {
                         message.getMessageId(),
                         message.getMessageContent(),
                         message.getMessageType(),
+                        message.getAttachmentUrl(),
                         message.getCreatedAt().toString(),
                         message.getIsDeleted(),
                         message.getSender().getUserId().equals(senderId)

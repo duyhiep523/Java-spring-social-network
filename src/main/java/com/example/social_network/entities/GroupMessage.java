@@ -29,6 +29,8 @@ public class GroupMessage extends BaseEntity {
 
     @Column(name = "message_type", length = 20, nullable = false)
     private String messageType = "TEXT";  // Default value is 'TEXT'
+    @Column(name = "attachment_url", nullable = false)
+    private String attachmentUrl;
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 }

@@ -7,6 +7,7 @@ import com.example.social_network.entities.PrivateMessage;
 import com.example.social_network.response.Error;
 import com.example.social_network.response.Response;
 import com.example.social_network.services.Iservice.IPrivateMessageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,9 @@ import java.util.List;
 @RequestMapping("${apiPrefix}/private-message")
 @RequiredArgsConstructor
 public class PrivateMessageController {
-
-
     private final IPrivateMessageService privateMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public String sendMessage(String message) {
-        return message;
-    }
 
     @PostMapping("/send")
     public ResponseEntity<?> sendMessage(
@@ -48,14 +42,16 @@ public class PrivateMessageController {
             return ResponseEntity.badRequest().body(new Error(errorMessages.toString(), "422"));
         }
         PrivateMessageResponse message = privateMessageService.createMessage(request);
-
-        // Gửi tin nhắn tới người nhận qua WebSocket
-        messagingTemplate.convertAndSend(
-                "/topic/messages/" + request.getReceiverId(),
-                message
+        messagingTemplate.convertAndSendToUser(
+                request.getReceiverId(), // Receiver ID (username or user ID)
+                "/queue/private", // Destination for private messages
+                message // Message content
         );
 
-        // Tạo phản hồi
+        System.out.println("Message Sent hihihiih: " + message);
+
+
+
         Response<Object> response = Response.builder()
                 .message("Tin nhắn đã được gửi thành công")
                 .data(message)
