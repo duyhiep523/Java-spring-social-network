@@ -42,11 +42,7 @@ public class PrivateMessageController {
             return ResponseEntity.badRequest().body(new Error(errorMessages.toString(), "422"));
         }
         PrivateMessageResponse message = privateMessageService.createMessage(request);
-        messagingTemplate.convertAndSendToUser(
-                request.getReceiverId(), // Receiver ID (username or user ID)
-                "/queue/private", // Destination for private messages
-                message // Message content
-        );
+
 
         System.out.println("Message Sent hihihiih: " + message);
 

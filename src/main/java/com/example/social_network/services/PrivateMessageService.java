@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +31,7 @@ public class PrivateMessageService implements IPrivateMessageService {
     private final com.example.social_network.services.CloudinaryService cloudinaryService;
     private final PrivateMessageAttachmentRepository privateMessageAttachmentRepository;
     private final UserAccountRepository userAccountRepository;
-
+    private final SimpMessagingTemplate messagingTemplate;
     @Override
     public PrivateMessageResponse createMessage(PrivateMessageDTO request) {
         User sender = userAccountRepository.findById(request.getSenderId())
@@ -54,11 +55,8 @@ public class PrivateMessageService implements IPrivateMessageService {
             }
             message.setAttachmentUrl(String.join(",", fileUrls));
         }
-
-        // Lưu tin nhắn vào cơ sở dữ liệu
         PrivateMessage savedMessage = privateMessageRepository.save(message);
 
-        // Tạo và trả về đối tượng PrivateMessageResponse
         PrivateMessageResponse response = new PrivateMessageResponse(
                 savedMessage.getMessageId(),
                 new PrivateMessageResponse.SenderReceiverInfo(
@@ -77,10 +75,14 @@ public class PrivateMessageService implements IPrivateMessageService {
                 savedMessage.getCreatedAt().toString(),
                 savedMessage.getIsDeleted()
         );
-
+        sendNotificationToReceiver(receiver.getUserId(), savedMessage);
         return response;
     }
-
+    private void sendNotificationToReceiver(String receiverId, PrivateMessage message) {
+        String destination = "/topic/notifications/" + receiverId;
+        String notificationMessage = String.format("Bạn có tin nhắn mới từ %s: %s", message.getSender().getFullName(), message.getMessageContent());
+        messagingTemplate.convertAndSendToUser(receiverId, destination, notificationMessage);
+    }
 
     @Override
     public PrivateMessageHistoryResponse getChatHistory(String senderId, String receiverId, int page, int size) {

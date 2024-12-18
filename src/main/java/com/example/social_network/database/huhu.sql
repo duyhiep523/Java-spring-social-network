@@ -165,7 +165,7 @@ CREATE TABLE `group_message` (
     `group_id` varchar(50),
     `sender_id` varchar(50),
     `message_content` TEXT,
-    `message_type` ENUM('TEXT', 'IMAGE') NOT NULL DEFAULT 'TEXT',
+    `message_type` ENUM('TEXT', 'FILE') NOT NULL DEFAULT 'TEXT',
      `attachment_url` VARCHAR(255) ,
     `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `create_by` varchar(255),
