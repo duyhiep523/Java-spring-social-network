@@ -3,6 +3,7 @@ package com.example.social_network.services;
 import com.example.social_network.dtos.Request.PrivateMessageDTO;
 import com.example.social_network.dtos.Response.PrivateMessageHistoryResponse;
 import com.example.social_network.dtos.Response.PrivateMessageResponse;
+import com.example.social_network.dtos.Response.UserMessageSummaryResponse;
 import com.example.social_network.entities.PrivateMessage;
 import com.example.social_network.entities.User;
 import com.example.social_network.exceptions.ResourceNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +34,7 @@ public class PrivateMessageService implements IPrivateMessageService {
     private final PrivateMessageAttachmentRepository privateMessageAttachmentRepository;
     private final UserAccountRepository userAccountRepository;
     private final SimpMessagingTemplate messagingTemplate;
+
     @Override
     public PrivateMessageResponse createMessage(PrivateMessageDTO request) {
         User sender = userAccountRepository.findById(request.getSenderId())
@@ -78,6 +81,7 @@ public class PrivateMessageService implements IPrivateMessageService {
         sendNotificationToReceiver(receiver.getUserId(), savedMessage);
         return response;
     }
+
     private void sendNotificationToReceiver(String receiverId, PrivateMessage message) {
         String destination = "/topic/notifications/" + receiverId;
         String notificationMessage = String.format("Bạn có tin nhắn mới từ %s: %s", message.getSender().getFullName(), message.getMessageContent());
@@ -135,5 +139,33 @@ public class PrivateMessageService implements IPrivateMessageService {
         privateMessageRepository.save(message);
     }
 
+    @Override
+    public List<UserMessageSummaryResponse> getUsersWithLastMessage(String userId) {
+        User message = userAccountRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
+
+        List<Object[]> results = privateMessageRepository.getUserMessageSummaries(userId);
+
+        List<UserMessageSummaryResponse> responseList = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        for (Object[] result : results) {
+            // result[0]: userId, result[1]: fullName, result[2]: profilePictureUrl, result[3]: lastMessageTime
+            String lastMessageTime = null;
+            if (result[3] != null) {
+                lastMessageTime = dateFormat.format(result[3]);
+            }
+
+            UserMessageSummaryResponse response = new UserMessageSummaryResponse(
+                    (String) result[0], // userId
+                    (String) result[1], // fullName
+                    (String) result[2], // profilePictureUrl
+                    lastMessageTime     // lastMessageTime dưới dạng String
+            );
+            responseList.add(response);
+        }
+
+        return responseList;
+    }
 
 }

@@ -3,6 +3,7 @@ package com.example.social_network.controllers;
 import com.example.social_network.dtos.Request.PrivateMessageDTO;
 import com.example.social_network.dtos.Response.PrivateMessageHistoryResponse;
 import com.example.social_network.dtos.Response.PrivateMessageResponse;
+import com.example.social_network.dtos.Response.UserMessageSummaryResponse;
 import com.example.social_network.entities.PrivateMessage;
 import com.example.social_network.response.Error;
 import com.example.social_network.response.Response;
@@ -85,6 +86,21 @@ public class PrivateMessageController {
 
         Response<Object> response = Response.builder()
                 .message("Tin nhắn đã được xóa thành công")
+                .success(true)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+
+    @GetMapping("/users/last-messages")
+    public ResponseEntity<?> getUsersWithLastMessage(@RequestParam String userId) {
+        List<UserMessageSummaryResponse> userMessageSummaries = privateMessageService.getUsersWithLastMessage(userId);
+
+        Response<Object> response = Response.builder()
+                .message("Danh sách người dùng đã nhắn tin")
+                .data(userMessageSummaries)
                 .success(true)
                 .build();
 
