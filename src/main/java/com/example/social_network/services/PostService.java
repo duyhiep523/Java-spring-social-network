@@ -68,6 +68,7 @@ public class PostService implements IPostService {
                 .images(imageUrls)
                 .theme(savedPost.getTheme())
                 .share(savedPost.getShare())
+                .numOfShare(savedPost.getNumOfShare())
                 .isDeleted(false)
                 .build();
     }
@@ -98,6 +99,7 @@ public class PostService implements IPostService {
                 .isDeleted(post.getIsDeleted())
                 .theme(post.getTheme())
                 .share(post.getShare())
+                .numOfShare(post.getNumOfShare())//
                 .build();
         return PostResponseDetail.builder()
                 .postResponse(postResponse)
@@ -127,7 +129,7 @@ public class PostService implements IPostService {
         post.setPrivacy(postUpdateRequest.getPrivacy() != null ? postUpdateRequest.getPrivacy() : post.getPrivacy());
         post.setTheme(postUpdateRequest.getTheme());
 
-       //  Cập nhật ảnh nếu có
+        //  Cập nhật ảnh nếu có
         if (postUpdateRequest.getImages() != null && !postUpdateRequest.getImages().isEmpty()) {
             // Xoá ảnh cũ
             postImageRepository.deleteByPost_PostId(postId);
@@ -153,8 +155,10 @@ public class PostService implements IPostService {
                 .isDeleted(updatedPost.getIsDeleted())
                 .theme(updatedPost.getTheme())
                 .share(updatedPost.getShare())
+                .numOfShare(post.getNumOfShare())//
                 .build();
     }
+
     @Override
     public NewsFeed getAllPostsByUserIdFromFriend(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("create_at")));
@@ -162,7 +166,7 @@ public class PostService implements IPostService {
         List<PostResponse> postResponses = posts.getContent().stream()
                 .map(this::convertToPostResponse)
                 .collect(Collectors.toList());
-        return  new NewsFeed(postResponses, posts.getTotalElements(), posts.getTotalPages(), posts.getNumber(), posts.getSize());
+        return new NewsFeed(postResponses, posts.getTotalElements(), posts.getTotalPages(), posts.getNumber(), posts.getSize());
     }
 
     private PostResponse convertToPostResponse(Post post) {
@@ -180,6 +184,7 @@ public class PostService implements IPostService {
                 .createAt(post.getCreatedAt())
                 .images(imageUrls)
                 .isDeleted(post.getIsDeleted())
+                .numOfShare(post.getNumOfShare())//
                 .build();
     }
 
@@ -217,4 +222,28 @@ public class PostService implements IPostService {
     public List<PostResponse> getAllPosts(int page, int size) {
         return List.of();
     }
+
+    @Override
+    @Transactional
+    public int incrementNumOfShare(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
+
+        // Xử lý trường hợp numOfShare null
+        if (post.getNumOfShare() == null) {
+            post.setNumOfShare(0);
+        }
+
+        post.setNumOfShare(post.getNumOfShare() + 1);
+        Post updatedPost = postRepository.save(post);
+        return updatedPost.getNumOfShare();
+    }
+
+    @Override
+    public int getShareCount(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
+        return post.getNumOfShare();
+    }
+
 }

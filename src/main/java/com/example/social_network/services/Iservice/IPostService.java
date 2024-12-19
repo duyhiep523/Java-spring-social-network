@@ -32,4 +32,8 @@ public interface IPostService {
 
     List<PostResponse> getAllPosts(int page, int size);
 
+    @Transactional
+    int incrementNumOfShare(String postId);
+
+    int getShareCount(String postId);
 }

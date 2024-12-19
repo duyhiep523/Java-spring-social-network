@@ -1,8 +1,6 @@
 package com.example.social_network.dtos.Response;
 
 
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -22,7 +20,7 @@ public class PostResponse {
     private String privacy;
     private String theme;
     private String share;
-
+    private int numOfShare;
     @JsonProperty("user_id")
     private String userId;
     @JsonProperty("create_at")

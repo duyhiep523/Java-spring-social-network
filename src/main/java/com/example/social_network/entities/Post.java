@@ -27,7 +27,8 @@ public class Post extends BaseEntity {
 
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
-
+    @Column(name = "num_of_share")
+    private Integer numOfShare = 0;
     @Column(name = "privacy", columnDefinition = "ENUM('public', 'private', 'friends') DEFAULT 'public'")
     private String privacy = "public";  // Default value is 'public'
 

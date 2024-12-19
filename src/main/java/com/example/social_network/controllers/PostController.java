@@ -151,5 +151,30 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/share/{postId}")
+    public ResponseEntity<?> incrementNumOfShare(@PathVariable String postId) {
+        iPostService.incrementNumOfShare(postId);
+
+        Response<Object> response = Response.builder()
+                .message("Cập nhật số lượt chia sẻ thành công")
+                .success(true)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{postId}/share-count")
+    public ResponseEntity<?> getShareCount(@PathVariable String postId) {
+        int shareCount = iPostService.getShareCount(postId);
+
+        Response<Object> response = Response.builder()
+                .message("Lấy số lượt chia sẻ thành công")
+                .data(shareCount)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
 }
 
