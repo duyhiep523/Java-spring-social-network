@@ -4,6 +4,7 @@ import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
+import com.example.social_network.dtos.Response.UserMutualFriendsResponse;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.response.Response;
 import com.example.social_network.services.Iservice.IFriendshipService;
@@ -124,6 +125,17 @@ public class FriendshipController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/mutual-friends")
+    public ResponseEntity<?> getUsersWithMutualFriends(@RequestParam String userId) {
+        List<UserMutualFriendsResponse> mutualFriends = friendshipService.getUsersWithMutualFriends(userId);
 
+        Response<Object> response = Response.builder()
+                .message("Lấy danh sách người dùng có bạn chung thành công")
+                .data(mutualFriends)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 
 }

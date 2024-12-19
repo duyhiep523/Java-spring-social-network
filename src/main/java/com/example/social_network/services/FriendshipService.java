@@ -4,6 +4,7 @@ import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
+import com.example.social_network.dtos.Response.UserMutualFriendsResponse;
 import com.example.social_network.entities.Friendship;
 import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.FriendshipRepository;
@@ -12,6 +13,7 @@ import com.example.social_network.services.Iservice.IFriendshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -150,5 +152,20 @@ public class FriendshipService implements IFriendshipService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<UserMutualFriendsResponse> getUsersWithMutualFriends(String userId) {
+        List<Object[]> results = friendshipRepository.findUsersWithMutualFriends(userId);
+        List<UserMutualFriendsResponse> response = new ArrayList<>();
 
+        for (Object[] row : results) {
+            String userIdResult = (String) row[0];
+            String fullName = (String) row[1];
+            String profilePictureUrl = (String) row[2];
+            long mutualFriends = ((Number) row[3]).longValue(); // Vì COUNT trả về là Number
+
+            UserMutualFriendsResponse dto = new UserMutualFriendsResponse(userIdResult, fullName, profilePictureUrl, mutualFriends);
+            response.add(dto);
+        }
+        return response;
+    }
 }

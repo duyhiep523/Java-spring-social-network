@@ -4,6 +4,7 @@ import com.example.social_network.comon.enums.FriendshipStatus;
 import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
+import com.example.social_network.dtos.Response.UserMutualFriendsResponse;
 import com.example.social_network.entities.Friendship;
 
 import java.util.List;
@@ -29,4 +30,6 @@ public interface IFriendshipService {
     long countFriends(String userId);
 
     List<FriendReceivedResponse> getSentFriendRequests(String senderId);
+
+    List<UserMutualFriendsResponse> getUsersWithMutualFriends(String userId);
 }
