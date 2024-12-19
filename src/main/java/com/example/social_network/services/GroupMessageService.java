@@ -66,13 +66,16 @@ public class GroupMessageService implements IGroupMessageService {
                 sendNotificationToUser(member.getUserAccount(), savedMessage);
             }
         }
+        GroupMembers members = groupMembersRepository.findByGroupChat_GroupIdAndUserAccount_UserId(groupId, request.getSenderId()).orElseThrow(() -> new ResourceNotFoundException("không tìm thấy thành viên trong nhóm"));
+        String nickName = members.getNickName();
 
         return new GroupMessageResponse(
                 savedMessage.getMessageId(),
                 new GroupMessageResponse.SenderReceiverInfo(
                         sender.getUserId(),
                         sender.getFullName(),
-                        sender.getProfilePictureUrl()
+                        sender.getProfilePictureUrl(),
+                        nickName
                 ),
                 savedMessage.getMessageContent(),
                 savedMessage.getMessageType(),
@@ -81,6 +84,7 @@ public class GroupMessageService implements IGroupMessageService {
                 savedMessage.getCreatedAt().toString()
         );
     }
+
     private void sendNotificationToUser(User user, GroupMessage message) {
 
         String notificationMessage = "Bạn có một tin nhắn mới trong nhóm: " + message.getMessageContent();
@@ -117,10 +121,13 @@ public class GroupMessageService implements IGroupMessageService {
         List<GroupMessageHistoryRespone.GroupMessageResponse> messages = groupMessages.stream()
                 .map(message -> {
                     User sender = message.getSender();
+                    GroupMembers members = groupMembersRepository.findByGroupChat_GroupIdAndUserAccount_UserId(groupId, sender.getUserId()).orElseThrow(() -> new ResourceNotFoundException("không tìm thấy thành viên trong nhóm"));
+                    String nickName = members.getNickName();
                     GroupMessageHistoryRespone.SenderReceiverInfo senderInfo = new GroupMessageHistoryRespone.SenderReceiverInfo(
                             sender.getUserId(),
                             sender.getFullName(),
-                            sender.getProfilePictureUrl()
+                            sender.getProfilePictureUrl(),
+                            nickName
                     );
                     return new GroupMessageHistoryRespone.GroupMessageResponse(
                             message.getMessageId(),

@@ -21,4 +21,6 @@ public interface GroupMembersRepository extends JpaRepository<GroupMembers, Stri
     @Query("SELECT gm FROM GroupMembers gm WHERE gm.groupChat.groupId = :groupId")
     List<GroupMembers> findMembersByGroupId(@Param("groupId") String groupId);
 
+
+
 }
