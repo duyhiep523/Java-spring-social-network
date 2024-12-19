@@ -50,6 +50,7 @@ public class PostService implements IPostService {
                 .theme(postRequest.getTheme())
                 .share(postRequest.getShare())
                 .isDeleted(false)
+                .numOfShare(0)
                 .build();
         Post savedPost = postRepository.save(post);
         List<PostImage> postImages = new ArrayList<>();
@@ -68,7 +69,7 @@ public class PostService implements IPostService {
                 .images(imageUrls)
                 .theme(savedPost.getTheme())
                 .share(savedPost.getShare())
-                .numOfShare(savedPost.getNumOfShare())
+//                .numOfShare(savedPost.getNumOfShare())
                 .isDeleted(false)
                 .build();
     }
@@ -99,7 +100,7 @@ public class PostService implements IPostService {
                 .isDeleted(post.getIsDeleted())
                 .theme(post.getTheme())
                 .share(post.getShare())
-                .numOfShare(post.getNumOfShare())//
+//                .numOfShare(post.getNumOfShare())//
                 .build();
         return PostResponseDetail.builder()
                 .postResponse(postResponse)
@@ -155,7 +156,7 @@ public class PostService implements IPostService {
                 .isDeleted(updatedPost.getIsDeleted())
                 .theme(updatedPost.getTheme())
                 .share(updatedPost.getShare())
-                .numOfShare(post.getNumOfShare())//
+//                .numOfShare(post.getNumOfShare())//
                 .build();
     }
 
@@ -184,7 +185,7 @@ public class PostService implements IPostService {
                 .createAt(post.getCreatedAt())
                 .images(imageUrls)
                 .isDeleted(post.getIsDeleted())
-                .numOfShare(post.getNumOfShare())//
+//                .numOfShare(post.getNumOfShare())//
                 .build();
     }
 

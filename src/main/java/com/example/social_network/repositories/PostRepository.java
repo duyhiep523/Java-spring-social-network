@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post,String> {
-    @Query(value = "SELECT p.* FROM post p " +
+    @Query(value = "SELECT DISTINCT p.* FROM post p " +
             "JOIN friendship f ON (f.user_id_1 = p.user_id OR f.user_id_2 = p.user_id) " +
             "WHERE (f.user_id_1 = :userId OR f.user_id_2 = :userId) " +
             "AND f.status = 'ACCEPTED' AND p.is_deleted = FALSE " +
