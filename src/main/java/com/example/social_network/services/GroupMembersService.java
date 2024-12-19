@@ -5,14 +5,12 @@ import com.example.social_network.dtos.Response.GroupMemberResponse;
 import com.example.social_network.entities.GroupChat;
 import com.example.social_network.entities.GroupMembers;
 import com.example.social_network.entities.User;
-import com.example.social_network.exceptions.InvalidParamException;
 import com.example.social_network.exceptions.ResourceNotFoundException;
 import com.example.social_network.repositories.GroupChatRepository;
 import com.example.social_network.repositories.GroupMembersRepository;
 import com.example.social_network.repositories.UserAccountRepository;
 import com.example.social_network.services.Iservice.IGroupMembersService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -83,9 +81,30 @@ public class GroupMembersService implements IGroupMembersService {
                     User user = groupMember.getUserAccount();
                     String avatarUrl = user.getProfilePictureUrl();
                     String fullName = user.getFullName();
-                    return new GroupMemberResponse(user.getUserId(), avatarUrl, fullName);
+                    return new GroupMemberResponse(user.getUserId(), avatarUrl, fullName, groupMember.getNickName());
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public GroupMemberResponse updateGroupMemberNickname(String groupId, String userId, String nickname) {
+        GroupMembers member = groupMembersRepository.findByGroupChat_GroupIdAndUserAccount_UserId(groupId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Thành viên không tồn tại trong nhóm"));
+
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("Biệt danh không được để trống");
+        }
+
+        member.setNickName(nickname);
+        GroupMembers groupMember = groupMembersRepository.save(member);
+        User user = groupMember.getUserAccount();
+
+        return GroupMemberResponse.builder()
+                .avatarUrl(user.getProfilePictureUrl())
+                .fullName(user.getFullName())
+                .nickName(groupMember.getNickName())
+                .userId(user.getUserId())
+                .build();
     }
 
 

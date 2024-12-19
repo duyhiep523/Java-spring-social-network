@@ -74,6 +74,37 @@ public class GroupMessageController {
         return ResponseEntity.ok(response);
     }
 
+    // cập nhật theme
+    @PutMapping("/update-theme/{groupId}")
+    public ResponseEntity<?> updateGroupTheme(@PathVariable String groupId, @RequestParam String theme) {
+        GroupChatResponse updatedGroup = groupChatService.updateGroupTheme(groupId, theme);
+
+        Response<Object> response = Response.builder()
+                .message("Cập nhật theme nhóm thành công")
+                .data(updatedGroup)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+    // cap nhat nick name
+    @PutMapping("/update-nickname/{groupId}/{userId}")
+    public ResponseEntity<?> updateGroupMemberNickname(
+            @PathVariable String groupId,
+            @PathVariable String userId,
+            @RequestParam String nickname) {
+
+        groupMembersService.updateGroupMemberNickname(groupId, userId, nickname);
+
+        Response<Object> response = Response.builder()
+                .message("Cập nhật biệt danh thành công")
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
     // thêm thành viên vào nhóm
     @PostMapping("add-member")
     public ResponseEntity<?> addGroupMember(
@@ -176,17 +207,18 @@ public class GroupMessageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-            GroupMessageHistoryRespone response = groupMessageService.getGroupMessageHistory(groupId, page, size);
+        GroupMessageHistoryRespone response = groupMessageService.getGroupMessageHistory(groupId, page, size);
 
-            Response<GroupMessageHistoryRespone> result = Response.<GroupMessageHistoryRespone>builder()
-                    .message("Lịch sử tin nhắn của nhóm")
-                    .data(response)
-                    .success(true)
-                    .build();
+        Response<GroupMessageHistoryRespone> result = Response.<GroupMessageHistoryRespone>builder()
+                .message("Lịch sử tin nhắn của nhóm")
+                .data(response)
+                .success(true)
+                .build();
 
-            return ResponseEntity.ok(result);
+        return ResponseEntity.ok(result);
 
     }
+
     // Lấy danh sách nhóm chat của người dùng
     @GetMapping("/user/{userId}/groups")
     public ResponseEntity<?> getGroupChatsByUser(@PathVariable String userId) {

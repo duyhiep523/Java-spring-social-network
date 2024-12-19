@@ -15,5 +15,6 @@ public class GroupChatResponse {
     private String groupName;
     private String adminId;
     private String image;
+    private String theme;
     private boolean isDelete;
 }

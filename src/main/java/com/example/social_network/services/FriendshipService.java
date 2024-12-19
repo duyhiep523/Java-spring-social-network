@@ -1,6 +1,7 @@
 package com.example.social_network.services;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
+import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
@@ -133,6 +134,20 @@ public class FriendshipService implements IFriendshipService {
     public long countFriends(String userId) {
         userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
         return friendshipRepository.countFriendsByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED);
+    }
+    @Override
+    public List<FriendReceivedResponse> getSentFriendRequests(String senderId) {
+        List<Friendship> sentRequests = friendshipRepository
+                .findAllByUser1_UserIdAndStatusAndIsDeletedFalse(senderId, FriendshipStatus.PENDING);
+
+        return sentRequests.stream()
+                .map(request -> FriendReceivedResponse.builder()
+                        .receivedId(request.getUser2().getUserId())
+                        .fullName(request.getUser2().getFullName())
+                        .profilePictureUrl(request.getUser2().getProfilePictureUrl())
+                        .sentAt(request.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 

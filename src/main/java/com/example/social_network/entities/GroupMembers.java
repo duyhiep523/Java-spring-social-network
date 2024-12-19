@@ -26,7 +26,8 @@ public class GroupMembers extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User userAccount;
-
+    @Column(name = "nickname", length = 50)
+    private String nickName;
     @Column(name = "join_date")
     private LocalDateTime joinDate;
 

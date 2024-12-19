@@ -51,6 +51,7 @@ public class GroupChatService implements IGroupChatService {
                 .adminId(savedGroup.getAdmin().getUserId())
                 .image(savedGroup.getGroupImageUrl())
                 .isDelete(savedGroup.getIsDeleted())
+                .theme(savedGroup.getTheme())
                 .build();
     }
     @Override
@@ -80,8 +81,32 @@ public class GroupChatService implements IGroupChatService {
                 .adminId(updatedGroup.getAdmin().getUserId())
                 .image(updatedGroup.getGroupImageUrl())
                 .isDelete(updatedGroup.getIsDeleted())
+                .theme(updatedGroup.getTheme())
                 .build();
     }
 
+    @Override
+    public GroupChatResponse updateGroupTheme(String groupId, String theme) {
+
+        GroupChat groupChat = groupChatRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group chat not found"));
+
+        if (theme == null || theme.isEmpty()) {
+            throw new IllegalArgumentException("Theme không được để trống");
+        }
+
+        groupChat.setTheme(theme);
+
+        GroupChat updatedGroup = groupChatRepository.save(groupChat);
+
+        return GroupChatResponse.builder()
+                .groupId(updatedGroup.getGroupId())
+                .groupName(updatedGroup.getGroupName())
+                .adminId(updatedGroup.getAdmin().getUserId())
+                .image(updatedGroup.getGroupImageUrl())
+                .isDelete(updatedGroup.getIsDeleted())
+                .theme(updatedGroup.getTheme())
+                .build();
+    }
 
 }

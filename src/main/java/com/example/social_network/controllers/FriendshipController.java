@@ -1,6 +1,7 @@
 package com.example.social_network.controllers;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
+import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
@@ -109,5 +110,20 @@ public class FriendshipController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/sent-requests")
+    public ResponseEntity<?> getSentFriendRequests(@RequestParam String userId) {
+        List<FriendReceivedResponse> sentRequests = friendshipService.getSentFriendRequests(userId);
+
+        Response<Object> response = Response.builder()
+                .message("Lấy danh sách lời mời kết bạn đã gửi thành công")
+                .data(sentRequests)
+                .success(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }

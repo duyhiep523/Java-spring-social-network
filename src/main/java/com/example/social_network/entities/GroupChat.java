@@ -21,7 +21,8 @@ public class GroupChat extends BaseEntity {
 
     @Column(name = "group_image_url", length = 255)
     private String groupImageUrl;
-
+    @Column(name = "theme", length = 50)
+    private String theme;
     @ManyToOne
     @JoinColumn(name = "admin_id", referencedColumnName = "user_id")
     private User admin;

@@ -7,4 +7,6 @@ public interface IGroupChatService {
     GroupChatResponse createGroupChat(GroupChatRequest request);
 
     GroupChatResponse updateGroupChat(String groupId, GroupChatRequest request);
+
+    GroupChatResponse updateGroupTheme(String groupId, String theme);
 }

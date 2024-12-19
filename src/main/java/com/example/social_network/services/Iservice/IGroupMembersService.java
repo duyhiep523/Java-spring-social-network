@@ -14,4 +14,6 @@ public interface IGroupMembersService {
     void removeGroupMember(String adminId,String groupId, String userId);
 
     List<GroupMemberResponse> listGroupMembers(String groupId);
+
+    GroupMemberResponse updateGroupMemberNickname(String groupId, String userId, String nickname);
 }

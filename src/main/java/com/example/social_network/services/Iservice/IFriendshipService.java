@@ -1,6 +1,7 @@
 package com.example.social_network.services.Iservice;
 
 import com.example.social_network.comon.enums.FriendshipStatus;
+import com.example.social_network.dtos.Response.FriendReceivedResponse;
 import com.example.social_network.dtos.Response.FriendRequestResponse;
 import com.example.social_network.dtos.Response.FriendShipStatusUSent;
 import com.example.social_network.entities.Friendship;
@@ -26,4 +27,6 @@ public interface IFriendshipService {
     FriendShipStatusUSent getFriendshipStatus(String userId1, String userId2);
 
     long countFriends(String userId);
+
+    List<FriendReceivedResponse> getSentFriendRequests(String senderId);
 }
