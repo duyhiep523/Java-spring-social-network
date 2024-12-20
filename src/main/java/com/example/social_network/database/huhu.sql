@@ -41,7 +41,7 @@ CREATE TABLE `post` (
      `share` varchar(250),
     `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `create_by` varchar(255),
-   
+   `num_of_share` int,
     `update_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `update_by` varchar(255),
     `is_deleted` BOOLEAN DEFAULT FALSE,

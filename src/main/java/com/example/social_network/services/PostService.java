@@ -50,7 +50,7 @@ public class PostService implements IPostService {
                 .theme(postRequest.getTheme())
                 .share(postRequest.getShare())
                 .isDeleted(false)
-                .numOfShare(0)
+//                .numOfShare(0)
                 .build();
         Post savedPost = postRepository.save(post);
         List<PostImage> postImages = new ArrayList<>();
